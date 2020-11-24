@@ -1,0 +1,51 @@
+def decomposeStates(thr, st_table):
+        def findIndex(lst, number):
+            for ind, val in enumerate(lst):
+                if number in val:
+                    return ind
+        n = st_table.shape[0]
+        thresholded_table = st_table > thr
+        count = 1
+        diff_nums_table = st_table
+        for i in range(0, n):
+            for j in range(i+1, n):
+                if diff_nums_table[i][j] == 1:
+                    diff_nums_table[i][j] = count
+                    count += 1
+        while True:
+            diff_nums_table_copy = diff_nums_table
+            for i in range(0, n):
+                minval = np.min([np.nonzero(diff_nums_table[i])])
+                for j in range(0, n):
+                    if diff_nums_table[i][j] != 0:
+                        diff_nums_table[i][j] = minval
+            for j in range(0, n):
+                minval = np.min([np.nonzero(diff_nums_table[:][j])])
+                for i in range(0, n):
+                    if diff_nums_table[i][j] != 0:
+                        diff_nums_table[i][j] = minval
+            if diff_nums_table_copy == diff_nums_table:
+                break
+        
+        n_groups = np.max(diff_nums_table)
+        groups = [[] for i in range(n_groups)]
+        for i in range(n):
+            for j in range(n):
+                if diff_nums_table[i][j] != 0:
+                    groups[diff_nums_table[i][j]] = groups[diff_nums_table[i][j]].append(i)
+                    groups[diff_nums_table[i][j]] = groups[diff_nums_table[i][j]].append(j)
+        
+        for i in n_groups:
+            groups[i] = list(dict.fromkeys(groups[i]))
+
+        return groups
+
+def main():
+    arr = np.array([[1, 1, 0]
+                   ,[1, 1, 0]
+                   ,[0, 0, 1]])
+    groups = decomposeStates(0.01, arr)
+    print(groups)
+
+if __name__ == "__main__":
+    main()
