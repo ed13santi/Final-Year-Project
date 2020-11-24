@@ -2,6 +2,7 @@ import numpy as np
 import itertools
 
 def decomposeStates(thr, st_table):
+        #assign different number to each entry above threshold, set entries below thr to 0
         n = st_table.shape[0]
         count = 1
         for i, j in itertools.product(range(n), range(n)):
@@ -11,9 +12,7 @@ def decomposeStates(thr, st_table):
             else:
                 st_table[i][j] = 0
 
-        #print("\n____table with increasing numbers ____")
-        #print(st_table)
-
+        #assign same number to all entries that are part of the same subsystem
         while True:
             st_table_copy = st_table
             for i in range(n):
@@ -29,24 +28,16 @@ def decomposeStates(thr, st_table):
             if (st_table_copy == st_table).all() :
                 break
 
-        #print("\n____table with group numbers ____")
-        #print(st_table)
-
+        #group states in the same subsystem as list of lists
         group_keys = []
         for i, j in itertools.product(range(n), range(n)):
             if st_table[i][j] > 0:
                 group_keys.append(st_table[i][j])
-        keys_dict = dict.fromkeys(group_keys)
+        groups = []
+        for k in group_keys:
+            groups.append(list(dict.fromkeys(np.nonzero(st_table == k)[0])))
 
-        #print("\n____keys dictionary____")
-        #print(keys_dict)
-        
-        for k in keys_dict.keys():
-            keys_dict[k] = list(dict.fromkeys(np.nonzero(st_table == k)[0]))
-
-        #print(keys_dict)
-
-        return list(keys_dict.values())
+        return groups
 
 def main():
     arr = np.array([[1, 0, 0]
