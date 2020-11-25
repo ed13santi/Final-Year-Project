@@ -3,9 +3,9 @@ from collections import defaultdict
 import numpy as np
 from gym.spaces import Discrete
 
-from playground.policies.base import Policy, TrainConfig
-from playground.policies.memory import Transition
-from playground.utils.misc import plot_learning_curve
+from policies.base import Policy, TrainConfig
+from policies.memory import Transition
+from utils.misc import plot_learning_curve
 
 
 class QlearningPolicy(Policy):

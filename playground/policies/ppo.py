@@ -4,10 +4,10 @@ import numpy as np
 import tensorflow as tf
 from gym.spaces import Discrete
 
-from playground.policies.base import BaseModelMixin, Policy, Config
-from playground.policies.memory import ReplayMemory
-from playground.utils.misc import plot_learning_curve
-from playground.utils.tf_ops import dense_nn
+from policies.base import BaseModelMixin, Policy, Config
+from policies.memory import ReplayMemory
+from utils.misc import plot_learning_curve
+from utils.tf_ops import dense_nn
 
 
 class PPOPolicy(Policy, BaseModelMixin):
