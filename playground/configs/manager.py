@@ -3,17 +3,17 @@ import importlib
 import gym
 import os
 from gym.wrappers import Monitor
-from utils.misc import plot_from_monitor_results
+from playground.utils.misc import plot_from_monitor_results
 
 
 def load_policy_class(policy_name):
-    mod = importlib.import_module("policies")
+    mod = importlib.import_module("playground.policies")
     policy_class = getattr(mod, policy_name)
     return policy_class
 
 
 def load_wrapper_class(wrapper_name):
-    mod = importlib.import_module("utils.wrappers")
+    mod = importlib.import_module("playground.utils.wrappers")
     wrapper_class = getattr(mod, wrapper_name)
     return wrapper_class
 
