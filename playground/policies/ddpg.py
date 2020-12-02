@@ -2,10 +2,10 @@ import numpy as np
 import tensorflow as tf
 from gym.spaces import Box
 
-from playground.policies.base import BaseModelMixin, Policy, TrainConfig
-from playground.policies.memory import ReplayMemory, Transition
-from playground.utils.misc import plot_learning_curve
-from playground.utils.tf_ops import dense_nn
+from policies.base import BaseModelMixin, Policy, TrainConfig
+from policies.memory import ReplayMemory, Transition
+from utils.misc import plot_learning_curve
+from utils.tf_ops import dense_nn
 
 
 class DDPGPolicy(Policy, BaseModelMixin):

@@ -1,8 +1,7 @@
 import os
 import time
 import click
-from playground.configs.manager import ConfigManager
-
+from configs.manager import ConfigManager
 
 @click.command()
 @click.argument('config_name')
