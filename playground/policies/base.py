@@ -5,8 +5,8 @@ import tensorflow as tf
 from gym.spaces import Box, Discrete
 from gym.utils import colorize
 
-from utils.misc import Config
-from utils.misc import REPO_ROOT
+from playground.utils.misc import Config
+from playground.utils.misc import REPO_ROOT
 
 
 class TrainConfig(Config):

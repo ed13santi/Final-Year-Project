@@ -1,8 +1,8 @@
 import numpy as np
 import tensorflow as tf
-from policies.base import BaseModelMixin, Policy, TrainConfig
-from utils.misc import plot_learning_curve
-from utils.tf_ops import dense_nn
+from playground.policies.base import BaseModelMixin, Policy, TrainConfig
+from playground.utils.misc import plot_learning_curve
+from playground.utils.tf_ops import dense_nn
 
 
 class ReinforcePolicy(Policy, BaseModelMixin):
