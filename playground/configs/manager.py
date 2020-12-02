@@ -5,11 +5,6 @@ import os
 from gym.wrappers import Monitor
 from utils.misc import plot_from_monitor_results
 
-import glob
-import io
-import base64
-from IPython.display import HTML
-
 
 def load_policy_class(policy_name):
     mod = importlib.import_module("policies")
@@ -79,18 +74,5 @@ class ConfigManager:
         policy.train(train_config)
 
         env.close()
-
-        mp4list = glob.glob('/tmp/' + model_name +'/*.mp4')
-        if len(mp4list) > 0:
-            mp4 = mp4list[0]
-            video = io.open(mp4, 'r+b').read()
-            encoded = base64.b64encode(video)
-            ipythondisplay.display(HTML(data='''<video alt="test" autoplay 
-                        loop controls style="height: 400px;">
-                        <source src="data:video/mp4;base64,{0}" type="video/mp4" />
-                    </video>'''.format(encoded.decode('ascii'))))
-        else: 
-            print("Could not find video")
-
-        #plot_from_monitor_results('/tmp/' + model_name, window=50)
+        plot_from_monitor_results('/tmp/' + model_name, window=50)
         print("Training completed:", model_name)
