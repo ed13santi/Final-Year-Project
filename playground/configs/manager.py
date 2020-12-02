@@ -57,9 +57,9 @@ class ConfigManager:
 
     def start_training(self, model_name):
         self.env.reset()
-        env = Monitor(self.env, '/tmp/' + model_name, force=True)
+        #env = Monitor(self.env, '/tmp/' + model_name, force=True)
         policy = load_policy_class(self.policy_name)(
-            env, model_name, training=True, **self.policy_params)
+            self.env, model_name, training=True, **self.policy_params)
 
         print("\n==================================================")
         print("Loaded gym.env:", self.env_name)
@@ -73,6 +73,6 @@ class ConfigManager:
         train_config = policy.TrainConfig(**self.train_params)
         policy.train(train_config)
 
-        env.close()
-        plot_from_monitor_results('/tmp/' + model_name, window=50)
+        #env.close()
+        #plot_from_monitor_results('/tmp/' + model_name, window=50)
         print("Training completed:", model_name)
