@@ -10,7 +10,7 @@ from utils.misc import plot_learning_curve
 from utils.tf_ops import dense_nn, conv2d_net, lstm_net
 
 
-class DqnPolicy(Policy, BaseModelMixin):
+class StateDecompositionDqnPolicy(Policy, BaseModelMixin):
     def __init__(self, env, name, transition_thr,
                  training=True,
                  gamma=0.99,
@@ -18,9 +18,11 @@ class DqnPolicy(Policy, BaseModelMixin):
                  model_type='dense',
                  model_params=None,
                  step_size=1,  # only > 1 if model_type is 'lstm'.
-                 layer_sizes=[32, 32],
+                 subnet_layer_sizes=[32, 32],
+                 merger_layer_sizes=[32, 32],
                  double_q=True,
-                 dueling=True):
+                 dueling=True,
+                 n_subnets=1):
         """
         model_params: 'layer_sizes', 'step_size', 'lstm_layers', 'lstm_size'
         """
@@ -41,7 +43,6 @@ class DqnPolicy(Policy, BaseModelMixin):
         self.step_size = step_size
         self.double_q = double_q
         self.dueling = dueling
-        self.negligible_transition_threshold = transition_thr
 
     @property
     def state_dim(self):
@@ -85,6 +86,44 @@ class DqnPolicy(Policy, BaseModelMixin):
 
         return net_class, net_params
 
+    def decomposeStates(self, st_table):
+        #assign different number to each entry above threshold, set entries below thr to 0
+        n = st_table.shape[0]
+        count = 1
+        for i, j in itertools.product(range(n), range(n)):
+            if st_table[i][j] > self.negligible_transition_threshold:
+                st_table[i][j] = count
+                count += 1
+            else:
+                st_table[i][j] = 0
+
+        #assign same number to all entries that are part of the same subsystem
+        while True:
+            st_table_copy = st_table
+            for i in range(n):
+                if np.max( st_table[i,:] ) > 0:
+                    minval = np.min( st_table[i][np.nonzero(st_table[i])] )
+                    for j in np.nonzero(st_table[i])[0]:
+                        st_table[i][j] = minval
+            for j in range(n):
+                if np.max( st_table[:,j] ) > 0:
+                    minval = np.min( st_table[:,j][np.nonzero(st_table[:,j])] )
+                    for i in np.nonzero(st_table[:,j])[0]:
+                        st_table[i][j] = minval
+            if (st_table_copy == st_table).all() :
+                break
+
+        #group states in the same subsystem as list of lists
+        group_keys = []
+        for i, j in itertools.product(range(n), range(n)):
+            if st_table[i][j] > 0:
+                group_keys.append(st_table[i][j])
+        groups = []
+        for k in group_keys:
+            groups.append(list(dict.fromkeys(np.nonzero(st_table == k)[0])))
+
+        return groups
+
     def create_q_networks(self):
         # The first dimension should have batch_size * step_size
         self.states = tf.placeholder(tf.float32, shape=(None, *self.state_dim), name='state')
@@ -98,6 +137,8 @@ class DqnPolicy(Policy, BaseModelMixin):
         # The output is a probability distribution over all the actions.
 
         net_class, net_params = self._extract_network_params()
+
+        for n_subnets
 
         if self.dueling:
             self.q_hidden = net_class(self.states, self.layer_sizes[:-1], name='Q_primary',
@@ -199,44 +240,6 @@ class DqnPolicy(Policy, BaseModelMixin):
         n_episodes = 500
         warmup_episodes = 450
         log_every_episode = 10
-
-    def decomposeStates(self, st_table):
-        #assign different number to each entry above threshold, set entries below thr to 0
-        n = st_table.shape[0]
-        count = 1
-        for i, j in itertools.product(range(n), range(n)):
-            if st_table[i][j] > self.negligible_transition_threshold:
-                st_table[i][j] = count
-                count += 1
-            else:
-                st_table[i][j] = 0
-
-        #assign same number to all entries that are part of the same subsystem
-        while True:
-            st_table_copy = st_table
-            for i in range(n):
-                if np.max( st_table[i,:] ) > 0:
-                    minval = np.min( st_table[i][np.nonzero(st_table[i])] )
-                    for j in np.nonzero(st_table[i])[0]:
-                        st_table[i][j] = minval
-            for j in range(n):
-                if np.max( st_table[:,j] ) > 0:
-                    minval = np.min( st_table[:,j][np.nonzero(st_table[:,j])] )
-                    for i in np.nonzero(st_table[:,j])[0]:
-                        st_table[i][j] = minval
-            if (st_table_copy == st_table).all() :
-                break
-
-        #group states in the same subsystem as list of lists
-        group_keys = []
-        for i, j in itertools.product(range(n), range(n)):
-            if st_table[i][j] > 0:
-                group_keys.append(st_table[i][j])
-        groups = []
-        for k in group_keys:
-            groups.append(list(dict.fromkeys(np.nonzero(st_table == k)[0])))
-
-        return groups
 
     def train(self, config: TrainConfig):
 

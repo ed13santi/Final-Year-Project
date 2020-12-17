@@ -26,6 +26,11 @@ class ReinforcePolicy(Policy, BaseModelMixin):
         self.returns = tf.placeholder(tf.float32, shape=(None,), name='return')
 
         # Build network
+        print("layer sizes: " + str(self.layer_sizes))
+        print("act size: " + str(self.act_size))
+        print(self.env.action_space)
+        print(self.env.action_space.low)
+        print(self.env.action_space.high)
         self.pi = dense_nn(self.s, self.layer_sizes + [self.act_size], name='pi_network')
         self.sampled_actions = tf.squeeze(tf.multinomial(self.pi, 1))
         self.pi_vars = self.scope_vars('pi_network')
@@ -77,11 +82,18 @@ class ReinforcePolicy(Policy, BaseModelMixin):
         n_episodes = 800
         log_every_episode = 10
 
+
     def train(self, config: TrainConfig):
         step = 0
         episode_reward = 0.
         reward_history = []
         reward_averaged = []
+
+        print(self.env.observation_space.shape)
+
+
+        size = 6561 #it would be better not to hardcode this
+        stateTransTable = np.zeros((size, size))
 
         lr = config.lr
 
@@ -99,6 +111,11 @@ class ReinforcePolicy(Policy, BaseModelMixin):
                 new_ob, r, done, info = self.env.step(a)
                 step += 1
                 episode_reward += r
+
+                if n_episode > 700:
+                    #index1 = np.inner(ob, np.array(self.state_dim))
+                    #index2 = np.inner(ob, np.array(self.state_dim))
+                    stateTransTable[ob][new_ob] += 1
 
                 obs.append(self.obs_to_inputs(ob))
                 actions.append(a)
@@ -136,6 +153,11 @@ class ReinforcePolicy(Policy, BaseModelMixin):
                     reward_history[-5:], lr,
                 ))
                 # self.save_checkpoint(step=step)
+
+        row_sums = stateTransTable.sum(axis=1)
+        row_sums[row_sums == 0] = 0.001
+        normalised_matrix = stateTransTable / row_sums[:, np.newaxis] 
+        np.save("transitionTable-cartpolev1", normalised_matrix)
 
         self.save_checkpoint(step=step)
 

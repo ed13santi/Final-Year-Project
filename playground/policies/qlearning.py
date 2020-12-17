@@ -74,6 +74,9 @@ class QlearningPolicy(Policy):
         alpha = config.alpha
         eps = config.epsilon
 
+        size = 6561 #it would be better not to hardcode this
+        stateTransTable = np.zeros((size, size))
+
         warmup_episodes = config.warmup_episodes or config.n_episodes
         eps_drop = (config.epsilon - config.epsilon_final) / warmup_episodes
 
@@ -89,6 +92,11 @@ class QlearningPolicy(Policy):
                     r += config.done_reward
 
                 self._update_q_value(Transition(ob, a, r, new_ob, done), alpha)
+
+                if n_episode > 2000:
+                    #index1 = np.inner(ob, np.array(self.state_dim))
+                    #index2 = np.inner(ob, np.array(self.state_dim))
+                    stateTransTable[ob][new_ob] += 1
 
                 step += 1
                 reward += r
@@ -106,6 +114,11 @@ class QlearningPolicy(Policy):
                 print("[episode:{}|step:{}] best:{} avg:{:.4f} alpha:{:.4f} eps:{:.4f} Qsize:{}".format(
                     n_episode, step, np.max(reward_history),
                     np.mean(reward_history[-10:]), alpha, eps, len(self.Q)))
+
+        row_sums = stateTransTable.sum(axis=1)
+        row_sums[row_sums == 0] = 0.001
+        normalised_matrix = stateTransTable / row_sums[:, np.newaxis] 
+        np.save("transitionTable-cartpolev1", normalised_matrix)
 
         print("[FINAL] Num. episodes: {}, Max reward: {}, Average reward: {}".format(
             len(reward_history), np.max(reward_history), np.mean(reward_history)))

@@ -1,9 +1,10 @@
 import json
 import importlib
 import gym
+import pybullet_envs
 import os
-from gym.wrappers import Monitor
-from utils.misc import plot_from_monitor_results
+#from gym.wrappers import Monitor
+#from utils.misc import plot_from_monitor_results
 
 
 def load_policy_class(policy_name):

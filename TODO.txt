@@ -1,0 +1,10 @@
+- need to do everything using discretized observation wrapper in order to make the state space discrete
+- after that, can procede to get the transition table using a simple method
+- test that and using it test the function that i made that groups the states
+- find suitable environment
+- code training model
+- test
+
+
+- check that the way things are discretised is consistent and the is no random component
+- check that 6561 is correct
