@@ -51,14 +51,12 @@ class DiscretizedActionWrapper(gym.ActionWrapper):
         print("New ob space:", Discrete((n_bins + 1) ** len(low)))
         self.action_space = Discrete(n_bins ** len(low))
 
-    def _convert_to_one_number(self, digits):
-        return sum([d * ((self.n_bins + 1) ** i) for i, d in enumerate(digits)])
+    def _convert_to_digits(self, singleNum):
+        return [ int(singleNum / (self.n_bins ** i)) % self.n_bins
+                for i in range(list(self.env.action_space.shape)[0])]
 
     def action(self, action):
         print(action)
-        digits = [np.digitize([x], bins)[0]
-                  for x, bins in zip(action.flatten(), self.val_bins)]
-        return self._convert_to_one_number(digits)
-
-    def step(self, action):
-        return self.env.step(action)
+        digits = self._convert_to_digits(action)
+        return [(bins[x]+bins[x+1])/2
+                for x, bins in zip(digits, self.val_bins)]

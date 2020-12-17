@@ -24,12 +24,12 @@ class QlearningPolicy(Policy):
         Repeat this process.
         """
         super().__init__(env, name, gamma=gamma, training=training)
-        print("Environment before wrapper")
-        print(env)
-        print("ACTION SPACE")
-        print(env.action_space)
-        print("OBSERVATION SPACE")
-        print(env.observation_space)
+        # print("Environment before wrapper")
+        # print(env)
+        # print("ACTION SPACE")
+        # print(env.action_space)
+        # print("OBSERVATION SPACE")
+        # print(env.observation_space)
         assert isinstance(env.action_space, Discrete)
         assert isinstance(env.observation_space, Discrete)
 
@@ -86,12 +86,12 @@ class QlearningPolicy(Policy):
         warmup_episodes = config.warmup_episodes or config.n_episodes
         eps_drop = (config.epsilon - config.epsilon_final) / warmup_episodes
 
-        print("ENVIRONMENT")
-        print(self.env)
-        print("ACTION SPACE")
-        print(self.env.action_space)
-        print("OBSERVATION SPACE")
-        print(self.env.observation_space)
+        # print("ENVIRONMENT")
+        # print(self.env)
+        # print("ACTION SPACE")
+        # print(self.env.action_space)
+        # print("OBSERVATION SPACE")
+        # print(self.env.observation_space)
 
         for n_episode in range(config.n_episodes):
             ob = self.env.reset()            
@@ -100,8 +100,8 @@ class QlearningPolicy(Policy):
 
             while not done:
                 a = self.act(ob, eps)
-                print("INPUT ACTION")
-                print(a)
+                #print("INPUT ACTION")
+                #print(a)
                 new_ob, r, done, info = self.env.step(a)
                 if done and config.done_reward is not None:
                     r += config.done_reward
