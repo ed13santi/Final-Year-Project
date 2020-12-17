@@ -9,3 +9,4 @@ figs/*
 **/*.pyc
 **/*.egg-info
 *~
+.npy
