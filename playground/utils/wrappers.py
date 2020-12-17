@@ -27,7 +27,7 @@ class DiscretizedObservationWrapper(gym.ObservationWrapper):
         return sum([d * ((self.n_bins + 1) ** i) for i, d in enumerate(digits)])
 
     def observation(self, observation):
-        print(observation)
+        #print(observation)
         digits = [np.digitize([x], bins)[0]
                   for x, bins in zip(observation.flatten(), self.val_bins)]
         return self._convert_to_one_number(digits)
@@ -56,7 +56,7 @@ class DiscretizedActionWrapper(gym.ActionWrapper):
                 for i in range(list(self.env.action_space.shape)[0])]
 
     def action(self, action):
-        print(action)
+        #print(action)
         digits = self._convert_to_digits(action)
         return [(bins[x]+bins[x+1])/2
                 for x, bins in zip(digits, self.val_bins)]
