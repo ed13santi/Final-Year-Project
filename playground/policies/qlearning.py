@@ -24,6 +24,12 @@ class QlearningPolicy(Policy):
         Repeat this process.
         """
         super().__init__(env, name, gamma=gamma, training=training)
+        print("Environment before wrapper")
+        print(env)
+        print("ACTION SPACE")
+        print(env.action_space)
+        print("OBSERVATION SPACE")
+        print(env.observation_space)
         assert isinstance(env.action_space, Discrete)
         assert isinstance(env.observation_space, Discrete)
 
@@ -74,29 +80,38 @@ class QlearningPolicy(Policy):
         alpha = config.alpha
         eps = config.epsilon
 
-        size = 6561 #it would be better not to hardcode this
-        stateTransTable = np.zeros((size, size))
+        #size = self.env.action_space extract from this
+        #stateTransTable = np.zeros((size, size))
 
         warmup_episodes = config.warmup_episodes or config.n_episodes
         eps_drop = (config.epsilon - config.epsilon_final) / warmup_episodes
 
+        print("ENVIRONMENT")
+        print(self.env)
+        print("ACTION SPACE")
+        print(self.env.action_space)
+        print("OBSERVATION SPACE")
+        print(self.env.observation_space)
+
         for n_episode in range(config.n_episodes):
-            ob = self.env.reset()
+            ob = self.env.reset()            
             done = False
             reward = 0.
 
             while not done:
                 a = self.act(ob, eps)
+                print("INPUT ACTION")
+                print(a)
                 new_ob, r, done, info = self.env.step(a)
                 if done and config.done_reward is not None:
                     r += config.done_reward
 
                 self._update_q_value(Transition(ob, a, r, new_ob, done), alpha)
 
-                if n_episode > 2000:
-                    #index1 = np.inner(ob, np.array(self.state_dim))
-                    #index2 = np.inner(ob, np.array(self.state_dim))
-                    stateTransTable[ob][new_ob] += 1
+                #if n_episode > 2000:
+                    ##index1 = np.inner(ob, np.array(self.state_dim))
+                    ##index2 = np.inner(ob, np.array(self.state_dim))
+                #    stateTransTable[ob][new_ob] += 1
 
                 step += 1
                 reward += r
@@ -115,10 +130,12 @@ class QlearningPolicy(Policy):
                     n_episode, step, np.max(reward_history),
                     np.mean(reward_history[-10:]), alpha, eps, len(self.Q)))
 
-        row_sums = stateTransTable.sum(axis=1)
-        row_sums[row_sums == 0] = 0.001
-        normalised_matrix = stateTransTable / row_sums[:, np.newaxis] 
-        np.save("transitionTable-cartpolev1", normalised_matrix)
+        #print("--- Saving state transition table ---")
+        #row_sums = stateTransTable.sum(axis=1)
+        #row_sums[row_sums == 0] = 0.001
+        #normalised_matrix = stateTransTable / row_sums[:, np.newaxis] 
+        #np.save("transitionTable-cartpolev1", normalised_matrix)
+        #print("--- Saving state transition table completed ---")
 
         print("[FINAL] Num. episodes: {}, Max reward: {}, Average reward: {}".format(
             len(reward_history), np.max(reward_history), np.mean(reward_history)))
