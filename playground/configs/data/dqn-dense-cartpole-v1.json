@@ -19,7 +19,7 @@
     "policy_name": "DqnPolicy",
     "policy_params": {
         "batch_size": 32,
-        "layer_sizes": [32, 32],
+        "layer_sizes": [64, 64, 64],
         "double_q": true,
         "dueling": true,
         "model_type": "dense",
