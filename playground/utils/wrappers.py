@@ -48,7 +48,7 @@ class DiscretizedActionWrapper(gym.ActionWrapper):
                          zip(low.flatten(), high.flatten())]
         self.ob_shape = self.action_space.shape
 
-        print("New ob space:", Discrete((n_bins + 1) ** len(low)))
+        print("New action space:", Discrete((n_bins) ** len(low)))
         self.action_space = Discrete(n_bins ** len(low))
 
     def _convert_to_digits(self, singleNum):

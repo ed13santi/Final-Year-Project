@@ -25,8 +25,17 @@ class DqnPolicy(Policy, BaseModelMixin):
         Policy.__init__(self, env, name, gamma=gamma, training=training)
         BaseModelMixin.__init__(self, name)
 
+        # print("Observation space original")
+        # print(self.env.env.env.env.observation_space)
+        # print(self.env.env.env.env.observation_space.low)
+        # print(self.env.env.env.env.observation_space.high)
+        # print("Observation space original")
+        # print(self.env.env.env.env.action_space)
+        # print(self.env.env.env.env.action_space.low)
+        # print(self.env.env.env.env.action_space.high)
+
         assert isinstance(self.env.action_space, Discrete)
-        #assert isinstance(self.env.observation_space, Box)
+        assert isinstance(self.env.observation_space, Box)
         assert model_type in ('dense', 'conv', 'lstm')
         assert step_size == 1 or model_type == 'lstm'
 
@@ -208,8 +217,8 @@ class DqnPolicy(Policy, BaseModelMixin):
         reward_history = [0.0]
         reward_averaged = []
 
-        size = self.env.observation_space.n
-        stateTransTable = np.zeros((size, size))
+        #size = self.env.observation_space.n
+        #stateTransTable = np.zeros((size, size))
 
         lr = config.lr
         eps = config.epsilon
@@ -263,10 +272,10 @@ class DqnPolicy(Policy, BaseModelMixin):
                 if step % config.target_update_every_step:
                     self.update_target_q_net()
 
-                if n_episode > 400:
+                #if n_episode > 400:
                     ##index1 = np.inner(ob, np.array(self.state_dim))
                     ##index2 = np.inner(ob, np.array(self.state_dim))
-                    stateTransTable[ob][new_ob] += 1
+                #    stateTransTable[ob][new_ob] += 1
 
             # Add all the transitions of one trajectory into the replay memory.
             buffer.add(traj)
@@ -293,12 +302,12 @@ class DqnPolicy(Policy, BaseModelMixin):
 
         self.save_checkpoint(step=step)
 
-        print("--- Saving state transition table ---")
-        row_sums = stateTransTable.sum(axis=1)
-        row_sums[row_sums == 0] = 0.0000000000000000001
-        normalised_matrix = stateTransTable / row_sums[:, np.newaxis] 
-        np.save("transitionTable-cartpolev1", normalised_matrix)
-        print("--- Saving state transition table completed ---")
+        # print("--- Saving state transition table ---")
+        # row_sums = stateTransTable.sum(axis=1)
+        # row_sums[row_sums == 0] = 0.0000000000000000001
+        # normalised_matrix = stateTransTable / row_sums[:, np.newaxis] 
+        # np.save("transitionTable-cartpolev1", normalised_matrix)
+        # print("--- Saving state transition table completed ---")
 
         print("[FINAL] episodes: {}, Max reward: {}, Average reward: {}".format(
             len(reward_history), np.max(reward_history), np.mean(reward_history)))
